@@ -1,0 +1,49 @@
+{% extends 'sensorheartbeat/_base.html' %}
+
+{% block content %}
+    <h1>Sensors</h1>
+    <ul id="sensors">
+    {% for sensor in sensor_list %}
+        <li>
+        {{ sensor }}
+        </li>
+    {% endfor %}
+    </ul>
+    <h1>Heartbeats</h1>
+    <ul id="heartbeats">
+    {% for heartbeat in heartbeat_list %}
+        <li>
+        {{ heartbeat }}
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        // Connect to WebSocket
+        var socket = new WebSocket(
+            'ws://' + window.location.host + '/ws/dashboard/');
+
+        // Log when open
+        socket.onopen = function open() {
+            console.log('WebSockets connection created.');
+        };
+
+        // Refresh data on message
+        socket.onmessage = function message(event) {
+            console.log('WebSockets received message.');
+            var data = JSON.parse(event.data);
+            // Replace sensor list
+            $('#sensors').empty();
+            for (var i=0; i < data.sensors.length; i++) {
+                $('#sensors').append("<li>"+data.sensors[i]+"</li>")
+            }
+            // Replace heartbeat list
+            $('#heartbeats').empty();
+            for (var i=0; i < data.heartbeats.length; i++) {
+                $('#heartbeats').append("<li>"+data.heartbeats[i]+"</li>")
+            }
+        };
+  </script>
+{% endblock script %}
